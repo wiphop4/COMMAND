@@ -6950,7 +6950,7 @@ window.__dh=DH;
 
 /* ===== รอบ 49: เครื่องมือวินิจฉัยซิงก์ + บันทึกซิงก์ถาวร + แชร์ไฟล์สำรอง ===== */
 try{(function(){
-window.CC_BUILD='62';
+window.CC_BUILD='63';
 var LK='cc:synclog49';
 function rd(){try{return JSON.parse(localStorage.getItem(LK)||'[]')}catch(e){return[]}}
 function add(o){try{var a=rd();o.t=Date.now();a.push(o);localStorage.setItem(LK,JSON.stringify(a.slice(-40)))}catch(e){}}
@@ -7803,6 +7803,12 @@ setTimeout(purgeDoneFiles,2500);
 window.__cc50.aiqBadge=function(){var top=document.getElementById('top'),b=document.getElementById('aiqBtn50');if(!top)return;if(!b){b=document.createElement('button');b.id='aiqBtn50';b.className='ico';b.setAttribute('data-act','aiqOpen50');b.setAttribute('aria-label','คิวงาน AI');b.title='คิวงาน AI';var s=top.querySelector('[data-act="search"]');top.insertBefore(b,s||null)}var c=qcount();b.innerHTML='📥'+(c.q?'<i>'+c.q+'</i>':'')};
 })()}catch(e){console.error('v50',e)}
 
+/* รุ่น 63: ล้างแคชออฟไลน์เก่าหนึ่งครั้งเมื่อได้ไฟล์ใหม่ + เช็กเวอร์ชันบนเซิร์ฟเวอร์อัตโนมัติ */
+try{(function(){var B=window.CC_BUILD,web=/^https?:$/.test(location.protocol);if(!web)return;
+ try{if(localStorage.getItem('cc:build:seen')!==B){localStorage.setItem('cc:build:seen',B);
+  if(window.caches&&caches.keys)caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k)}))}).catch(function(){});
+  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister()}))}).then(function(){return navigator.serviceWorker.register('sw.js')}).catch(function(){})}}catch(e){}
+ setTimeout(function(){fetch(location.pathname+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){var m=/window\.CC_BUILD='(\d+)'/.exec(t||''),sv=m?Number(m[1]):0;if(sv>Number(B))toast('มีเวอร์ชันใหม่ v'+sv+' บนเซิร์ฟเวอร์ · กด Ctrl+Shift+R เพื่อโหลดใหม่','ok')}).catch(function(){})},8000)})()}catch(e){console.error('build63',e)}
 render();initCloud();tick();setInterval(tick,1000);
 if(D.set.popupEnabled31!==false&&popupWindow31(Date.now())&&D.set.dailyGoalPopup31!==false&&D.set.askedGoal!==TD()&&!dayRec().goal)setTimeout(onboard,400);
 document.addEventListener('visibilitychange',function(){if(!document.hidden){if(actx&&actx.state==='suspended')actx.resume();
