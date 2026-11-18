@@ -6978,7 +6978,23 @@ try{(function(){
 var E=function(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var PRE=[['ChatGPT','GPT','https://chatgpt.com/','chatgpt.com',0],['Claude','CL','https://claude.ai/new','claude.ai',0],['Gemini','GEM','https://gemini.google.com/app','gemini.google.com',1],['Grok','GRK','https://grok.com/','grok.com',0],['Perplexity','PPX','https://www.perplexity.ai/','perplexity.ai',0],['Copilot','COP','https://copilot.microsoft.com/','copilot.microsoft.com',0],['DeepSeek','DS','https://chat.deepseek.com/','chat.deepseek.com',0],['NotebookLM','NLM','https://notebooklm.google.com/','notebooklm.google.com',1],['AI Studio','AIS','https://aistudio.google.com/','aistudio.google.com',1],['Kimi','KIM','https://www.kimi.com/','kimi.com',0],['Qwen','QW','https://chat.qwen.ai/','chat.qwen.ai',0],['Le Chat','MIS','https://chat.mistral.ai/','chat.mistral.ai',0]];
 function H(){D.set=D.set||{};var h=D.set.aihub50=D.set.aihub50||{a:{}};h.a=h.a||{};return h}
-function list(){var h=H();return Object.keys(h.a).map(function(k){return h.a[k]}).filter(function(a){return a&&!a.del}).sort(function(a,b){return(a.ord||0)-(b.ord||0)})}
+function heal(){var h=H(),ch=false;
+ Object.keys(h.a).forEach(function(k){var a=h.a[k];if(!a||typeof a!=='object')return;
+  if(a.id!==k){a.id=k;ch=true}
+  ['m','q'].forEach(function(kind){var c=a[kind];
+   if(c==null||typeof c!=='object'){a[kind]={};ch=true;return}
+   var isArr=Array.isArray(c);
+   Object.keys(c).forEach(function(i,n){var x=c[i];if(x==null)return;
+    if(typeof x!=='object'){x=c[i]={t:String(x)};ch=true}
+    var key=isArr?('l'+i):i;
+    if(!x.k||(!isArr&&x.k!==key)){x.k=key;ch=true}
+    if(x.t==null){x.t=String(x.text||x.title||x.name||x.n||'');ch=true}
+    if(!x.o){x.o=Number(x.at||x.created)||(n+1);ch=true}})});
+ });
+ if(ch){try{save()}catch(e){}}return ch}
+window.__ahHeal=heal;
+function ask(msg,yes,label){sheet('<h3 style="white-space:normal">'+E(msg)+'</h3><div class="row" style="gap:8px;margin-top:14px"><button class="btn" id="ccAskYes">'+E(label||'ลบ')+'</button><button class="pill" data-act="ptClose">ยกเลิก</button></div>');var b=document.getElementById('ccAskYes');if(b)b.onclick=function(){closeSheet();yes()}}
+function list(){heal();var h=H();return Object.keys(h.a).map(function(k){return h.a[k]}).filter(function(a){return a&&!a.del}).sort(function(a,b){return(a.ord||0)-(b.ord||0)})}
 function acc(id){var a=H().a[id];return a&&!a.del?a:null}
 function items(a,kind){var m=a[kind]||{};return Object.keys(m).map(function(k){return m[k]}).filter(function(x){return x&&!x.del}).sort(function(x,y){return(x.o||0)-(y.o||0)})}
 function hue(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return h}
@@ -6990,7 +7006,7 @@ function url(a){var u=a.url||'';if(a.au!==''&&a.au!=null&&u&&/google\.com/.test(
 function stBadge(a,now){var s=stateOf(a,now);return s.k==='limit'?'<span class="pill" data-ah-cd="'+E(a.id)+'" style="color:var(--er,#f66);border-color:var(--er,#f66)">⏳ '+cd(s.left)+'</span>':s.k==='busy'?'<span class="pill" style="color:var(--warn,#fb2);border-color:var(--warn,#fb2)">● ทำงานอยู่</span>':'<span class="pill" style="color:var(--ok,#3d9);border-color:var(--ok,#3d9)">'+(a.rd&&now-a.rd<6e5?'✅ เติมแล้ว':'● ว่าง')+'</span>'}
 function btns(a,now){var s=stateOf(a,now);return(a.url?'<button class="btn" data-act="ahOpen50" data-val="'+E(a.id)+'">เปิด</button>':'')+(s.k==='limit'?'<button class="pill" data-act="ahFree50" data-val="'+E(a.id)+'">ว่างแล้ว</button>':'<button class="pill" data-act="ahLimit50" data-val="'+E(a.id)+'">หมดลิมิต</button>')+(s.k==='busy'?'<button class="pill" data-act="ahFree50" data-val="'+E(a.id)+'">เลิกทำงาน</button>':s.k==='free'?'<button class="pill" data-act="ahBusy50" data-val="'+E(a.id)+'">กำลังใช้</button>':'')}
 function taskList(a,kind){var L=items(a,kind);return L.map(function(x){return'<div class="row" style="gap:6px;padding:3px 0;font-size:.86rem"><span style="flex:1;white-space:normal">'+(kind==='q'?'':'📌 ')+E(x.t)+'</span><button class="pill" data-act="ahTaskDel50" data-val="'+E(a.id)+'|'+kind+'|'+E(x.k)+'" aria-label="'+(kind==='q'?'เสร็จ':'ลบ')+'">'+(kind==='q'?'✓':'✕')+'</button></div>'}).join('')||'<div class="hc-muted" style="font-size:.8rem">—</div>'}
-function card(a,now){return'<article class="card" style="margin-bottom:10px"><div class="row" style="gap:10px;align-items:center">'+logo(a,44)+'<div style="flex:1;min-width:0"><b style="white-space:normal">'+E(a.ai)+'</b> <span class="hc-muted">'+E(a.acct||'')+'</span> '+hkChip(a)+'<div style="margin-top:3px">'+stBadge(a,now)+'</div></div><button class="pill" data-act="ahEdit50" data-val="'+E(a.id)+'" aria-label="แก้ไข">⚙</button></div>'+
+function card(a,now){return'<article class="card" style="margin-bottom:10px"><div class="row" style="gap:10px;align-items:center">'+logo(a,44)+'<div style="flex:1;min-width:0"><b style="white-space:normal">'+E(a.ai)+'</b> <span class="hc-muted">'+E(a.acct||'')+'</span> '+hkChip(a)+'<div style="margin-top:3px">'+stBadge(a,now)+'</div></div><button class="pill" data-act="ahEdit50" data-val="'+E(a.id)+'" aria-label="แก้ไข">⚙</button><button class="pill" data-act="ahDelAcc50" data-val="'+E(a.id)+'" aria-label="ลบบัญชี">🗑</button></div>'+
  (a.note?'<div class="hc-muted" style="font-size:.82rem;margin:6px 0;white-space:normal">'+E(a.note)+'</div>':'')+'<div class="row" style="gap:6px;margin:8px 0;flex-wrap:wrap">'+btns(a,now)+'</div>'+
  '<div class="ch" style="margin-top:6px"><b style="font-size:.85rem">งานหลัก (ค้างไว้ ไม่หาย)</b><button class="pill" data-act="ahTask50" data-val="'+E(a.id)+'|m">+</button></div>'+taskList(a,'m')+
  '<div class="ch" style="margin-top:8px"><b style="font-size:.85rem">คิวชั่วคราว</b><button class="pill" data-act="ahTask50" data-val="'+E(a.id)+'|q">+</button></div>'+taskList(a,'q')+'</article>'}
@@ -7016,7 +7032,10 @@ ACT.ahFree50=function(id){setSt(id,'free',0)};ACT.ahBusy50=function(id){setSt(id
 ACT.ahLimit50=function(id){var a=acc(id);if(!a)return;try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}var h=Number(a.dur)||5;setSt(id,'limit',Date.now()+h*3600e3);toast((a.ai)+' '+(a.acct||'')+' · จับเวลา '+h+' ชม.','ok')};
 ACT.ahLimitX50=function(id){var a=acc(id);if(!a)return;var v=prompt('รออีกกี่ชั่วโมง (เช่น 2.5)',a.dur||5);if(v==null)return;var h=Number(String(v).replace(',','.'));if(!Number.isFinite(h)||h<=0||h>240)return toast('ใส่ตัวเลขชั่วโมง 0–240','er');try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}setSt(id,'limit',Date.now()+h*3600e3)};
 ACT.ahTask50=function(v){var p=v.split('|');sheet('<h3>'+(p[1]==='m'?'เพิ่มงานหลัก':'เพิ่มงานเข้าคิว')+'</h3><input id="ahT" style="width:100%" placeholder="เช่น ติวคณิต 1 ต่อเนื่อง"><div class="row" style="gap:8px;margin-top:10px"><button class="btn" id="ahTs" data-id="'+E(p[0])+'" data-kind="'+p[1]+'">บันทึก</button><button class="pill" data-act="ptClose">ยกเลิก</button></div>');setTimeout(function(){var i=document.getElementById('ahT');if(i)i.focus()},60)};
-ACT.ahTaskDel50=function(v){var p=v.split('|'),a=acc(p[0]);if(!a||!a[p[1]]||!a[p[1]][p[2]])return;if(p[1]==='m'&&!confirm('ลบงานหลักนี้?'))return;a[p[1]][p[2]].del=1;save();render();refresh()};
+ACT.ahTaskDel50=function(v){var p=v.split('|'),a=acc(p[0]);if(!a||!a[p[1]])return toast('ไม่พบรายการนี้ (รีเฟรชหน้าแล้วลองใหม่)','er');var m=a[p[1]],key=m[p[2]]?p[2]:Object.keys(m).filter(function(k){return m[k]&&m[k].k===p[2]})[0];if(key==null||!m[key])return toast('ไม่พบรายการนี้ (รีเฟรชหน้าแล้วลองใหม่)','er');
+ function go(){m[key].del=1;a.sv=Date.now();save();render();refresh()}
+ if(p[1]==='m')ask('ลบงานหลักนี้?',go);else go()};
+ACT.ahDelAcc50=function(id){var a=acc(id);if(!a)return;ask('ลบบัญชี '+a.ai+(a.acct?' '+a.acct:'')+' พร้อมงานในบัญชี?',function(){a.del=1;a.sv=Date.now();save();render();refresh();toast('ลบบัญชีแล้ว','ok')})};
 function logoUpload(file,cb){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var c=document.createElement('canvas');c.width=c.height=64;var x=c.getContext('2d'),s=Math.min(im.width,im.height);x.fillStyle='#fff';x.fillRect(0,0,64,64);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,64,64);var d=c.toDataURL('image/webp',.85);if(d.indexOf('image/webp')<0)d=c.toDataURL('image/png');cb(d.length<30000?d:null)};im.onerror=function(){cb(null)};im.src=fr.result};fr.readAsDataURL(file)}
 var ED=null;
 ACT.ahEdit50=function(id){var a=id?acc(id):null;ED={id:id||'',logo:a?a.logo||'':'',pre:null};a=a||{ai:'',acct:'',short:'',url:'',dom:'',au:'',dur:5,prof:'',hk:'',note:''};
@@ -7033,9 +7052,9 @@ document.addEventListener('click',function(e){try{var t=e.target;
  if(t.id==='ahFx'){ED.logo='';document.getElementById('ahLg').innerHTML=logo({ai:document.getElementById('ahN').value||'AI',dom:ED.dom,short:document.getElementById('ahS').value},40)}
  else if(t.id==='ahSv'){var n=document.getElementById('ahN').value.trim().slice(0,30);if(!n)return toast('ใส่ชื่อ AI','er');var h=H(),id=ED.id||('a'+Date.now().toString(36)),o=h.a[id]||{id:id,ord:Date.now(),m:{},q:{},st:'free',until:0},u=document.getElementById('ahU').value.trim();if(u&&!/^https?:\/\//i.test(u)){return toast('ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://','er')}
   o.ai=n;o.acct=document.getElementById('ahA').value.trim().slice(0,30);o.short=document.getElementById('ahS').value.trim().slice(0,4);o.url=u;o.au=document.getElementById('ahG').value.trim();o.dur=Math.max(.1,Math.min(240,Number(String(document.getElementById('ahD').value).replace(',','.'))||5));o.prof=document.getElementById('ahP').value.trim().slice(0,40);o.hk=(document.getElementById('ahK')||{value:''}).value.trim().slice(0,30);o.note=document.getElementById('ahNote').value.slice(0,300);o.logo=ED.logo||'';o.dom=ED.dom||'';o.del=0;o.sv=Date.now();o.m=o.m||{};o.q=o.q||{};h.a[id]=o;save();closeSheet();render();refresh()}
- else if(t.id==='ahDel'){if(!confirm('ลบบัญชีนี้พร้อมงานในบัญชี?'))return;var a=acc(t.dataset.id);if(a){a.del=1;save()}closeSheet();render();refresh()}
+ else if(t.id==='ahDel'){var did=t.dataset.id;ask('ลบบัญชีนี้พร้อมงานในบัญชี?',function(){var a=acc(did);if(a){a.del=1;a.sv=Date.now();save()}render();refresh();toast('ลบบัญชีแล้ว','ok')})}
  else if(t.id==='ahCp'){var a2=acc(t.dataset.id);if(!a2)return;var cmd='chrome.exe --profile-directory="'+a2.prof+'" "'+url(a2)+'"';(navigator.clipboard?navigator.clipboard.writeText(cmd):Promise.reject()).then(function(){toast('คัดลอกคำสั่งแล้ว วางใน Win+R หรือทำเป็นทางลัด','ok')},function(){window.prompt('คัดลอกคำสั่งนี้',cmd)})}
- else if(t.id==='ahTs'){var v=document.getElementById('ahT').value.trim().slice(0,160);if(!v)return toast('พิมพ์งานก่อน','er');var a3=acc(t.dataset.id);if(!a3)return;var k=t.dataset.kind,m=a3[k]=a3[k]||{},key='k'+Date.now().toString(36);m[key]={k:key,t:v,o:Date.now()};a3.sv=Date.now();save();closeSheet();render();refresh()}}catch(err){console.error('aihub',err);toast('ทำรายการไม่สำเร็จ: '+err.message,'er')}});
+ else if(t.id==='ahTs'){var v=document.getElementById('ahT').value.trim().slice(0,160);if(!v)return toast('พิมพ์งานก่อน','er');var a3=acc(t.dataset.id);if(!a3)return;var k=t.dataset.kind,m=a3[k]=a3[k]||{},key='k'+Date.now().toString(36);if(Array.isArray(m))m.push({k:key,t:v,o:Date.now()});else m[key]={k:key,t:v,o:Date.now()};a3.sv=Date.now();save();closeSheet();render();refresh()}}catch(err){console.error('aihub',err);toast('ทำรายการไม่สำเร็จ: '+err.message,'er')}});
 document.addEventListener('keydown',function(e){if(e.key!=='Enter'||e.isComposing)return;var t=e.target;if(t&&t.id==='ahT'){e.preventDefault();var b=document.getElementById('ahTs');if(b)b.click()}else if(t&&t.id==='aq_t'){e.preventDefault();var b2=document.getElementById('aq_s');if(b2)b2.click()}});
 /* ปุ่มลอย + หน้าต่างลอย */
 var fab=document.createElement('button');fab.id='ccAiFab';fab.setAttribute('aria-label','AI HUB');fab.style.cssText='position:fixed;left:16px;bottom:84px;min-width:52px;height:52px;padding:0 12px;border-radius:26px;border:0;background:var(--pri,#6c7bff);color:#fff;font:700 15px system-ui;box-shadow:0 6px 18px rgba(0,0,0,.4);z-index:50;cursor:pointer;display:flex;align-items:center;gap:6px';document.body.appendChild(fab);
@@ -7708,17 +7727,20 @@ VS.set=function(){var box=document.createElement('div');box.innerHTML=set0();var
  [P.auto,P.status,P.cloud,P.backup,P.diag,P.store,P.lib].forEach(function(e){if(e)e.remove()});
  return html+box.innerHTML};
 /* ---------- คิวงาน AI ---------- */
-function QH(){D.set=D.set||{};var q=D.set.aiq50=D.set.aiq50||{q:{}};q.q=q.q||{};return q}
-function accs(){var h=(D.set&&D.set.aihub50&&D.set.aihub50.a)||{};return Object.keys(h).map(function(k){return h[k]}).filter(function(a){return a&&!a.del}).sort(function(a,b){return(a.ord||0)-(b.ord||0)})}
+function QH(){D.set=D.set||{};var q=D.set.aiq50=D.set.aiq50||{q:{}};q.q=q.q||{};
+ Object.keys(q.q).forEach(function(k){var x=q.q[k];if(x&&typeof x==='object'){if(x.id!==k)x.id=k;if(['q','doing','done'].indexOf(x.st)<0)x.st='q';if(!Array.isArray(x.files))x.files=[]}});return q}
+function accs(){try{window.__ahHeal&&window.__ahHeal()}catch(e){}var h=(D.set&&D.set.aihub50&&D.set.aihub50.a)||{};return Object.keys(h).map(function(k){return h[k]}).filter(function(a){return a&&!a.del}).sort(function(a,b){return(a.ord||0)-(b.ord||0)})}
 function accById(id){return accs().find(function(a){return a.id===id})||null}
 function aname(a){return(a.ai||'AI')+(a.acct?' '+a.acct:'')+(a.short?' · '+a.short:'')}
 function isFree(a){var now=Date.now();return a.st!=='busy'&&!(a.st==='limit'&&a.until>now)}
 function qall(){var o={q:0,doing:1,done:2};return Object.keys(QH().q).map(function(k){return QH().q[k]}).filter(function(x){return x&&!x.del}).sort(function(a,b){return(o[a.st]-o[b.st])||((a.at||0)-(b.at||0))})}
 function qcount(){var l=qall();return{q:l.filter(function(x){return x.st==='q'}).length,doing:l.filter(function(x){return x.st==='doing'}).length}}
+function dropFiles(it){var fs=(it&&it.files)||[];if(!fs.length)return 0;fs.forEach(function(m){try{localDB33('kv','readwrite',function(s){return s.delete('aiqf:'+m.id)}).catch(function(){})}catch(x){}});it.fdel=(it.fdel||0)+fs.length;it.files=[];return fs.length}
+function purgeDoneFiles(){var n=0;Object.keys(QH().q).forEach(function(k){var x=QH().q[k];if(x&&x.st==='done'&&(x.files||[]).length)n+=dropFiles(x)});if(n){save();try{render()}catch(e){}}return n}
 function fsize(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
 function qItem(it){var a=it.ai?accById(it.ai):null,by=it.by?accById(it.by):null,nf=(it.files||[]).length;
  return'<div class="qi '+it.st+'"><div class="qt">'+(it.st==='doing'?'⏳ ':it.st==='done'?'✓ ':'')+E(it.t||'งานไม่มีชื่อ')+'</div><div class="qp">'+E(it.p||'(ยังไม่มีพรอมพ์ — กดแก้ไขเพื่อร่าง)')+'</div>'
- +'<div class="g50-meta"><span class="chip50">'+(a?'สำหรับ '+E(aname(a)):'AI ตัวไหนก็ได้')+'</span>'+(nf?'<span class="chip50">📎 '+nf+' ไฟล์</span>':'')+(it.st==='doing'&&by?'<span class="chip50">กำลังทำที่ '+E(aname(by))+'</span>':'')+'</div>'
+ +'<div class="g50-meta"><span class="chip50">'+(a?'สำหรับ '+E(aname(a)):'AI ตัวไหนก็ได้')+'</span>'+(nf?'<span class="chip50">📎 '+nf+' ไฟล์</span>':'')+(!nf&&it.fdel?'<span class="chip50">🧹 ลบไฟล์แนบแล้ว</span>':'')+(it.st==='doing'&&by?'<span class="chip50">กำลังทำที่ '+E(aname(by))+'</span>':'')+'</div>'
  +'<div class="qa"><button class="pill" data-act="aiqCopy50" data-val="'+it.id+'">📋 คัดลอกพรอมพ์</button>'+(nf?'<button class="pill" data-act="aiqFiles50" data-val="'+it.id+'">⬇ โหลดไฟล์</button>':'')
  +(it.st==='q'?'<button class="btn sm50" data-act="aiqSend50" data-val="'+it.id+'">▶ ส่งให้ AI</button>':'')+(it.st==='doing'?'<button class="btn sm50" data-act="aiqDone50" data-val="'+it.id+'">✓ เสร็จแล้ว</button>':'')+(it.st!=='q'?'<button class="pill" data-act="aiqBack50" data-val="'+it.id+'">↩ กลับเข้าคิว</button>':'')
  +'<button class="pill" data-act="aiqEdit50" data-val="'+it.id+'">✏</button><button class="pill" data-act="aiqDel50" data-val="'+it.id+'" aria-label="ลบ">🗑</button></div></div>'}
@@ -7769,12 +7791,14 @@ ACT.aiqSend50=function(v){var p=String(v).split('|'),it=QH().q[p[0]];if(!it)retu
  if(!a&&!p[1]&&accs().length&&!it.ai){sheet('<h3>ส่งให้ AI ตัวไหน?</h3><p class="task-sub">ตอนนี้ไม่มี AI ว่าง เลือกตัวที่จะใช้</p>'+accs().map(function(x){return'<button class="pill" style="display:block;width:100%;text-align:left;margin:6px 0" data-act="aiqSend50" data-val="'+it.id+'|'+E(x.id)+'">'+E(aname(x))+(x.st==='limit'?' (ติดลิมิต)':x.st==='busy'?' (กำลังทำงาน)':'')+'</button>'}).join('')+'<button class="btn gh" data-act="ptClose">ยกเลิก</button>');return}
  doSend(it,a)};
 ACT.aiqNext50=function(accId){var a=accById(accId);if(!a)return;var it=qall().find(function(x){return x.st==='q'&&(!x.ai||x.ai===a.id)});if(!it)return toast('ไม่มีงานรอที่ตรงกับ AI ตัวนี้','er');doSend(it,a)};
-ACT.aiqDone50=function(id){var it=QH().q[id];if(!it)return;it.st='done';it.done=Date.now();var by=it.by,others=qall().some(function(x){return x.st==='doing'&&x.by===by&&x.id!==id});save();if(by&&!others&&accById(by)&&accById(by).st==='busy'){ACT.ahFree50(by);toast('ตั้ง AI เป็นว่างแล้ว — กด “รับงานถัดไป” ได้เลย','ok')}else refreshQ();if(qwOpen)setTimeout(ACT.aiqOpen50,50)};
+ACT.aiqDone50=function(id){var it=QH().q[id];if(!it)return;it.st='done';it.done=Date.now();var nd=dropFiles(it);if(nd)toast('ลบไฟล์แนบ '+nd+' ไฟล์ออกจากเครื่องแล้ว','ok');var by=it.by,others=qall().some(function(x){return x.st==='doing'&&x.by===by&&x.id!==id});save();if(by&&!others&&accById(by)&&accById(by).st==='busy'){ACT.ahFree50(by);toast('ตั้ง AI เป็นว่างแล้ว — กด “รับงานถัดไป” ได้เลย','ok')}else refreshQ();if(qwOpen)setTimeout(ACT.aiqOpen50,50)};
 ACT.aiqBack50=function(id){var it=QH().q[id];if(!it)return;it.st='q';it.by='';save();refreshQ()};
-ACT.aiqDel50=function(id){var it=QH().q[id];if(!it||!confirm('ลบงาน “'+(it.t||'')+'” ออกจากคิว?'))return;it.del=1;(it.files||[]).forEach(function(m){try{localDB33('kv','readwrite',function(s){return s.delete('aiqf:'+m.id)})}catch(x){}});save();refreshQ()};
+ACT.aiqDel50=function(id){var it=QH().q[id];if(!it)return;sheet('<h3 style="white-space:normal">ลบงาน “'+E(it.t||'')+'” ออกจากคิว?</h3><div class="row" style="gap:8px;margin-top:14px"><button class="btn" id="aqDelYes">ลบ</button><button class="pill" data-act="ptClose">ยกเลิก</button></div>');
+ document.getElementById('aqDelYes').onclick=function(){it.del=1;it.upd=Date.now();dropFiles(it);save();closeSheet();refreshQ();toast('ลบงานแล้ว','ok')}};
 ACT.aiqClear50=function(){var n=0;qall().filter(function(x){return x.st==='done'}).forEach(function(x){x.del=1;n++});save();refreshQ();toast('ล้าง '+n+' งานแล้ว','ok')};
 /* กันค้างเงียบ: ถ้า handler ของ AI Hub / คิวงานพัง ให้แจ้งข้อความแทน */
 Object.keys(ACT).filter(function(k){return /^(ah|aiq|aiQueue|aiPick|aiCopy)/.test(k)&&typeof ACT[k]==='function'&&!ACT[k].__safe}).forEach(function(k){var fn=ACT[k];ACT[k]=function(){try{return fn.apply(this,arguments)}catch(err){console.error(k,err);try{toast('ทำรายการไม่สำเร็จ: '+err.message,'er')}catch(x){}}};ACT[k].__safe=1});
+setTimeout(purgeDoneFiles,2500);
 /* ปุ่มคิวที่หัวหน้าเว็บ + จำนวน */
 window.__cc50.aiqBadge=function(){var top=document.getElementById('top'),b=document.getElementById('aiqBtn50');if(!top)return;if(!b){b=document.createElement('button');b.id='aiqBtn50';b.className='ico';b.setAttribute('data-act','aiqOpen50');b.setAttribute('aria-label','คิวงาน AI');b.title='คิวงาน AI';var s=top.querySelector('[data-act="search"]');top.insertBefore(b,s||null)}var c=qcount();b.innerHTML='📥'+(c.q?'<i>'+c.q+'</i>':'')};
 })()}catch(e){console.error('v50',e)}
